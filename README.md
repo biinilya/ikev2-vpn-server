@@ -55,9 +55,7 @@ Transfer the generated `ikev2-vpn.mobileconfig` file to your local computer via 
         leftsourceip=%config
         auto=start
 
-#### 3.3 Copy config in */etc/ipsec.secrets*
-
-    : PSK "your_psk"
+#### 3.3 Copy config from server */etc/ipsec.secrets* into target machine
 
 #### 3.4 Option - if apparmor work on system add in file */etc/apparmor.d/usr.lib.ipsec.charon* line (or use resolvconf framework)
 
@@ -70,6 +68,8 @@ And apply changes
 #### 3.5 Option - if any urls dont work try reduce MTU
 
      echo 'pre-up /sbin/ifconfig $IFACE mtu 1438' >> /etc/network/interfaces
+     OR
+     ip link set dev wlp3s0 mtu 1438
 
 #### 3.6 Start linux client
 
