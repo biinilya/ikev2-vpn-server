@@ -22,20 +22,21 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-HOST=$(wget -qO- eth0.me)
+IP=$(wget -qO- eth0.me)
+[ "z${HOST}" == "z" ] && HOST=${IP}
 
-: ${PROFILE_NAME="My IKEv2 VPN"}
-: ${PROFILE_IDENTIFIER=${HOST}}
-: ${PROFILE_UUID=$(hostname)}
+[ "z${SERVICE_NAME}" == "z" ] && PROFILE_NAME="My IKEv2 VPN" || PROFILE_NAME=${SERVICE_NAME}
+PROFILE_IDENTIFIER=$(hostname -f)
+PROFILE_UUID=$(uuidgen -r)
 
 # These variable, especially CONN_UUID, are bind to per username,
 # which currently, all users share the same secrets and configurations.
 
-: ${CONN_NAME="My IKEv2 VPN"}
-: ${CONN_IDENTIFIER="${PROFILE_IDENTIFIER}.shared-configuration"}
-: ${CONN_UUID=$(cat /proc/sys/kernel/random/uuid)}
-: ${CONN_HOST=${HOST}}
-: ${CONN_REMOTE_IDENTIFIER=${HOST}}
+CONN_NAME=${PROFILE_NAME}
+CONN_IDENTIFIER="${PROFILE_IDENTIFIER}.shared-configuration"
+CONN_UUID=$(uuidgen -r)
+[ "z${HOST_FQDN}" == "z" ] && CONN_HOST=${HOST} || CONN_HOST=${HOST_FQDN}
+CONN_REMOTE_IDENTIFIER=${HOST}
 
 CONN_SHARED_SECRET=$(cat /etc/ipsec.secrets | sed 's/.*"\(.*\)"/\1/g')
 
@@ -121,7 +122,7 @@ cat <<EOF
                     https://github.com/iphoting/ovpnmcgen.rb
                     -->
                     <key>OnDemandEnabled</key>
-                    <integer>1</integer>
+                    <integer>0</integer>
                     <key>OnDemandRules</key>
                     <array>
                         <dict>
