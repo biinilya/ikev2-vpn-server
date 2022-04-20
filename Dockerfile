@@ -1,17 +1,23 @@
-FROM alpine:3.14
+FROM ubuntu:20.04
 
-LABEL tags="alpine-3.14" \
-      build_ver="02-11-2021"
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get -y upgrade \
+    && DEBIAN_FRONTEND=noninteractive apt-get -y install \
+    strongswan \
+    iptables \
+    uuid-runtime \
+    ndppd \
+    openssl \
+    && rm -rf /var/lib/apt/lists/* # cache busted 20220420.0
 
-COPY etc /etc
-COPY usr/bin /usr/bin
+RUN rm /etc/ipsec.secrets
 
-RUN apk add --no-cache \
-    strongswan=5.9.1-r2 \
-	uuidgen \
-    && rm -rf /var/cache/apk/* \
-    && rm -f /etc/ipsec.secrets
+ADD ./etc/* /etc/
+ADD ./usr/bin/* /usr/bin/
 
+VOLUME /etc
+
+# http://blogs.technet.com/b/rrasblog/archive/2006/06/14/which-ports-to-unblock-for-vpn-traffic-to-pass-through.aspx
 EXPOSE 500/udp 4500/udp
 
 ENV HOST \
@@ -19,4 +25,3 @@ ENV HOST \
 	SERVICE_NAME
 
 ENTRYPOINT ["start-vpn"]
-
